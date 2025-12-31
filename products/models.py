@@ -51,7 +51,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, related_name='products', blank=True, null=True)
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
-    sku = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Product  #89270182
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True)  # ProductSKU (Stock Keeping Unit)  #89270182
     description = models.TextField()
     short_description = models.CharField(max_length=255, blank=True, null=True)  # Short tagline
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -59,9 +59,12 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     is_available = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
+    is_promotion = models.BooleanField(default=False)  # For promotional banners
+    promotion_theme = models.CharField(max_length=50, blank=True, null=True)  # 'bg-black-darker', 'bg-blue', 'bg-silver'
+    promotion_size = models.CharField(max_length=20, default='regular', choices=[('large', 'Large'), ('regular', 'Regular')])
     main_image = models.ImageField(upload_to='products/')
-    warranty_years = models.PositiveIntegerField(default=0)  # e.g., 1, 2, 3 years
-    warranty_info = models.CharField(max_length=200, blank=True, null=True)  # e.g., "Local Manufacturer Warranty"
+    warranty_years = models.PositiveIntegerField(default=0)  # 1, 2, 3 years
+    warranty_info = models.CharField(max_length=200, blank=True, null=True)  # "Local Manufacturer Warranty"
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -157,8 +160,6 @@ class ProductAdditionalInfo(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.attribute_name}"
-
-    
 
 
 
