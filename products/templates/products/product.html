@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Apple Product{% endblock %}
-
-
+{% block title %}{% if category %}{{ category.name }} Products{% else %}Products{% endif %}{% endblock %}
 
 {% block content %}
           
@@ -15,7 +13,9 @@
     <!-- END page-header-cover -->
     <!-- BEGIN container -->
     <div class="container">
-        <h1 class="page-header"><b>Apple</b> Product</h1>
+        <h1 class="page-header">
+            {% if category %}<b>{{ category.name }}</b> Products{% else %}<b>All</b> Products{% endif %}
+        </h1>
     </div>
     <!-- END container -->
 </div>
@@ -34,7 +34,13 @@
                     <!-- BEGIN row -->
                     <div class="row">
                         <div class="col-md-6">
-                            <h4>We found 65 Items for "Apple Product"</h4>
+                            <h4>
+                                {% if category %}
+                                    We found {{ products.count }} Items for "{{ category.name }}"
+                                {% else %}
+                                    We found {{ products.count }} Items
+                                {% endif %}
+                            </h4>
                         </div>
                         <!-- END col-6 -->
                         <!-- BEGIN col-6 -->
@@ -56,212 +62,38 @@
                 <div class="search-item-container">
                     <!-- BEGIN item-row -->
                     <div class="item-row">
+                        {% for product in products %}
                         <!-- BEGIN item -->
                         <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/iphone.png' %}" alt="" />
-                                <div class="discount">15% OFF</div>
+                            <a href="{% url 'product:product_detail' product.slug %}" class="item-image">
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" />
+                                {% if product.get_discount_percentage > 0 %}
+                                <div class="discount">{{ product.get_discount_percentage }}% OFF</div>
+                                {% endif %}
                             </a>
                             <div class="item-info">
                                 <h4 class="item-title">
-                                    <a href="product-detail.html">iPhone 6s Plus<br />16GB</a>
+                                    <a href="{% url 'product:product_detail' product.slug %}">{{ product.name }}<br />{{ product.short_description }}</a>
                                 </h4>
-                                <p class="item-desc">3D Touch. 12MP photos. 4K video.</p>
-                                <div class="item-price">$649.00</div>
-                                <div class="item-discount-price">$739.00</div>
+                                <p class="item-desc">{{ product.short_description }}</p>
+                                {% if product.discount_price %}
+                                <div class="item-price">${{ product.discount_price }}</div>
+                                <div class="item-discount-price">${{ product.price }}</div>
+                                {% else %}
+                                <div class="item-price">${{ product.price }}</div>
+                                {% endif %}
                             </div>
                         </div>
                         <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/apple-tv.png' %}" alt="" />
-                                <div class="discount">32% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">Apple TV<br />2016</a>
-                                </h4>
-                                <p class="item-desc">The future of television is here.</p>
-                                <div class="item-price">$599.00</div>
-                                <div class="item-discount-price">$799.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/iphone-se.png' %}" alt="" />
-                                <div class="discount">20% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">iPhone SE<br />32/64Gb</a>
-                                </h4>
-                                <p class="item-desc">A big step for small.</p>
-                                <div class="item-price">$499.00</div>
-                                <div class="item-discount-price">$599.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                    </div>
-                    <!-- END item-row -->
-                    <!-- BEGIN item-row -->
-                    <div class="item-row">
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/apple-watch.png' %}" alt="" />
-                                <div class="discount">15% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product-detail.html">Apple Watch<br />‏Sport Edition</a>
-                                </h4>
-                                <p class="item-desc">You. At a glance.</p>
-                                <div class="item-price">$399.00</div>
-                                <div class="item-discount-price">$453.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/imac.png' %}" alt="" />
-                                <div class="discount">32% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">21.5-inch iMac<br />with Retina Display</a>
-                                </h4>
-                                <p class="item-desc">Retina. Now in colossal and ginormous.</p>
-                                <div class="item-price">$599.00</div>
-                                <div class="item-discount-price">$799.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/macbook-pro.png' %}" alt="" />
-                                <div class="discount">20% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">MacBook Pro<br />with Retina Display</a>
-                                </h4>
-                                <p class="item-desc">Stunning Retina Display</p>
-                                <div class="item-price">$99.00</div>
-                                <div class="item-discount-price">$199.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                    </div>
-                    <!-- END item-row -->
-                    <!-- BEGIN item-row -->
-                    <div class="item-row">
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/ipad-pro.png' %}" alt="" />
-                                <div class="discount">15% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product-detail.html">9.7-inch iPad Pro<br />32GB</a>
-                                </h4>
-                                <p class="item-desc">3D Touch. 12MP photos. 4K video.</p>
-                                <div class="item-price">$649.00</div>
-                                <div class="item-discount-price">$739.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/mac-pro.png' %}" alt="" />
-                                <div class="discount">32% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">Mac Pro<br />Quad-Core and Dual GPU</a>
-                                </h4>
-                                <p class="item-desc">Built for creativity on an epic scale.</p>
-                                <div class="item-price">$2999.00</div>
-                                <div class="item-discount-price">$2599.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
-                        <!-- BEGIN item -->
-                        <div class="item item-thumbnail">
-                            <a href="product-detail.html" class="item-image">
-                                <img src="{% static 'img/ipad-air.png' %}" alt="" />
-                                <div class="discount">20% OFF</div>
-                            </a>
-                            <div class="item-info">
-                                <h4 class="item-title">
-                                    <a href="product.html">iPad Air 2<br />32/64Gb</a>
-                                </h4>
-                                <p class="item-desc">Light. Heavyweight.</p>
-                                <div class="item-price">$399.00</div>
-                                <div class="item-discount-price">$459.00</div>
-                            </div>
-                        </div>
-                        <!-- END item -->
+                        {% empty %}
+                        <p class="text-center">No products found in this category.</p>
+                        {% endfor %}
                     </div>
                     <!-- END item-row -->
                 </div>
                 <!-- END search-item-container -->
-                <!-- BEGIN pagination -->
-                <div class="text-center">
-                    <ul class="pagination m-t-0">
-                        <li class="disabled"><a href="javascript:;">Previous</a></li>
-                        <li class="active"><a href="javascript:;">1</a></li>
-                        <li><a href="javascript:;">2</a></li>
-                        <li><a href="javascript:;">3</a></li>
-                        <li><a href="javascript:;">4</a></li>
-                        <li><a href="javascript:;">5</a></li>
-                        <li><a href="javascript:;">Next</a></li>
-                    </ul>
-                </div>
-                <!-- END pagination -->
             </div>
             <!-- END search-content -->
-            <!-- BEGIN search-sidebar -->
-            <div class="search-sidebar">
-                <h4 class="title">Filter By</h4>
-                <form action="product.html" method="POST" name="filter_form">
-                    <div class="form-group">
-                        <label class="control-label">Keywords</label>
-                        <input type="text" class="form-control input-sm" name="keyword" value="Mobile Phones" placeholder="Enter Keywords" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Price</label>
-                        <div class="row row-space-0">
-                            <div class="col-md-5">
-                                <input type="number" class="form-control input-sm" name="price_from" value="10" placeholder="Price From" />
-                            </div>
-                            <div class="col-md-2 text-center p-t-5 f-s-12 text-muted">to</div>
-                            <div class="col-md-5">
-                                <input type="number" class="form-control input-sm" name="price_to" value="10000" placeholder="Price To" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="m-b-30">
-                        <button type="submit" class="btn btn-sm btn-inverse"><i class="fa fa-search"></i> Filter</button>
-                    </div>
-                </form>
-                <h4 class="title m-b-0">Categories</h4>
-                <ul class="search-category-list">
-                    <li><a href="#">iPhone <span class="pull-right">(10)</span></a></li>
-                    <li><a href="#">Mac <span class="pull-right">(15)</span></a></li>
-                    <li><a href="#">iPad <span class="pull-right">(32)</span></a></li>
-                    <li><a href="#">Watch <span class="pull-right">(4)</span></a></li>
-                    <li><a href="#">TV <span class="pull-right">(6)</span></a></li>
-                    <li><a href="#">Accessories <span class="pull-right">(38)</span></a></li>
-                </ul>
-            </div>
-            <!-- END search-sidebar -->
         </div>
         <!-- END search-container -->
     </div>

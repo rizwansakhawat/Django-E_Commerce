@@ -17,20 +17,6 @@ class Category(models.Model):
         return self.name
 
 
-#  SubCategory Model
-class SubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True)
-
-    class Meta:
-        verbose_name_plural = "SubCategories"
-        ordering = ['name']
-
-    def __str__(self):
-        return f"{self.category.name} - {self.name}"
-
-
 #  Brand Model
 class Brand(models.Model):
     name = models.CharField(max_length=100)
@@ -46,13 +32,11 @@ class Brand(models.Model):
 
 #  Product Model
 class Product(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='products', blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name='products', blank=True, null=True)
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, related_name='products', blank=True, null=True)
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True)  # ProductSKU (Stock Keeping Unit)  #89270182
-    description = models.TextField()
     short_description = models.CharField(max_length=255, blank=True, null=True)  # Short tagline
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -85,11 +69,10 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/')
     alt_text = models.CharField(max_length=200, blank=True, null=True)
-    is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-is_primary', 'created_at']
+        ordering = ['created_at']
 
     def __str__(self):
         return f"Image for {self.product.name}"
@@ -125,7 +108,7 @@ class ProductReview(models.Model):
 #makemigrations ProductSpecification Model 
 class ProductSpecification(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='specifications')
-    specification = models.CharField(max_length=255)  # e.g., "5.5" Retina HD Display with 3D Touch"
+    specification = models.CharField(max_length=255)  #  "5.5" Retina HD Display with 3D Touch"
 
     def __str__(self):
         return self.specification
