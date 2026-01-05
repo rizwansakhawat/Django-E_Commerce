@@ -1,5 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView, DetailView
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Avg, Count
 from .models import Product, Category, Brand, ProductReview
 
@@ -20,17 +22,60 @@ class HomeView(TemplateView):
         context['featured_products'] = Product.objects.filter(
             is_featured=True, 
             is_available=True
-        ).select_related('category', 'brand')[:8]
+        ).select_related('category', 'brand')[:6]
         
         # Get latest products
         context['latest_products'] = Product.objects.filter(
             is_available=True
         ).select_related('category', 'brand').order_by('-created_at')[:8]
         
-        # Get categories with product count
+        # Get all categories with product count and their products
+        categories_with_products = Category.objects.annotate(
+            product_count=Count('products')
+        ).filter(product_count__gt=0).prefetch_related('products')
+        
+        # Add products and featured product to each category
+        category_data = []
+        for category in categories_with_products:
+            products = Product.objects.filter(
+                category=category,
+                is_available=True
+            ).select_related('category', 'brand')[:6]
+            
+            featured_product = Product.objects.filter(
+                category=category,
+                is_available=True,
+                is_featured=True
+            ).select_related('category', 'brand').first()
+
+            category_brands = Brand.objects.filter(
+                products__category=category,
+                products__is_available=True
+            ).annotate(
+                product_count=Count('products', filter=Q(products__category=category))
+            ).filter(
+                product_count__gt=0
+            ).order_by('-product_count', 'name')[:12]
+            
+            if products.exists():
+                category_data.append({
+                    'category': category,
+                    'products': products,
+                    'featured': featured_product,
+                    'brands': category_brands
+                })
+        
+        context['category_sections'] = category_data
+        
+        # Get all categories for sidebar
         context['categories'] = Category.objects.annotate(
             product_count=Count('products')
         ).filter(product_count__gt=0)
+        
+        # Get all brands with product count
+        context['brands'] = Brand.objects.annotate(
+            product_count=Count('products')
+        ).filter(product_count__gt=0)[:12]
         
         return context
 
@@ -134,6 +179,50 @@ class ProductDetailView(DetailView):
         context['reviews_count'] = product.reviews.filter(is_approved=True).count()
         
         return context
+    
+    def post(self, request, *args, **kwargs):
+        """Handle review submission"""
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please login to submit a review.')
+            return redirect('accounts:login')
+        
+        product = self.get_object()
+        
+        # Check if user already reviewed this product
+        if ProductReview.objects.filter(product=product, user=request.user).exists():
+            messages.warning(request, 'You have already reviewed this product.')
+            return redirect('product:product_detail', slug=product.slug)
+        
+        # Get form data
+        rating = request.POST.get('rating')
+        title = request.POST.get('title')
+        comment = request.POST.get('comment')
+        
+        # Validate
+        if not all([rating, title, comment]):
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('product:product_detail', slug=product.slug)
+        
+        try:
+            rating = float(rating)
+            if rating < 1.0 or rating > 5.0:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid rating value.')
+            return redirect('product:product_detail', slug=product.slug)
+        
+        # Create review
+        ProductReview.objects.create(
+            product=product,
+            user=request.user,
+            rating=rating,
+            title=title,
+            comment=comment,
+            is_approved=False  # Pending admin approval
+        )
+        
+        messages.success(request, 'Thank you! Your review has been submitted and is pending approval.')
+        return redirect('product:product_detail', slug=product.slug)
 
 
 class SearchView(ListView):

@@ -15,6 +15,10 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('product:products_by_category', kwargs={'category_slug': self.slug})
 
 
 #  Brand Model
@@ -28,6 +32,10 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('product:products_by_brand', kwargs={'brand_slug': self.slug})
 
 
 #  Product Model
@@ -80,17 +88,9 @@ class ProductImage(models.Model):
 
 # ProductReview Model
 class ProductReview(models.Model):
-    RATING_CHOICES = (
-        (1, '1 Star'),
-        (2, '2 Stars'),
-        (3, '3 Stars'),
-        (4, '4 Stars'),
-        (5, '5 Stars'),
-    )
-    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.IntegerField(choices=RATING_CHOICES)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, help_text='Rating from 1.0 to 5.0')
     title = models.CharField(max_length=200)
     comment = models.TextField()
     is_approved = models.BooleanField(default=False)

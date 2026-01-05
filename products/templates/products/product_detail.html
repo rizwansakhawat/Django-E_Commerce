@@ -149,32 +149,126 @@
                     </div>
 
                     <div class="tab-pane fade" id="product-reviews">
-                        {% if product.reviews.all %}
-                        {% for review in product.reviews.all %}
-                        <div class="product-review">
-                            <div class="review-header">
-                                <h5>{{ review.title }}</h5>
-                                <div class="review-rating">
-                                    {% for i in "x"|rjust:"5" %}
-                                        {% if forloop.counter <= review.rating %}
-                                        <i class="fa fa-star"></i>
-                                        {% else %}
-                                        <i class="fa fa-star-o"></i>
-                                        {% endif %}
-                                    {% endfor %}
+                        <div class="row">
+                            <!-- BEGIN left column - reviews list -->
+                            <div class="col-md-8">
+                                <h4 class="m-b-20">Customer Reviews</h4>
+                                {% if product.reviews.all %}
+                                {% for review in product.reviews.all %}
+                                <!-- BEGIN review -->
+                                <div class="review">
+                                    <div class="review-info">
+                                        <div class="review-icon">
+                                            {% if review.user.profile.avatar %}
+                                            <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}" />
+                                            {% else %}
+                                            <img src="{% static 'img/user-default.jpg' %}" alt="{{ review.user.username }}" />
+                                            {% endif %}
+                                        </div>
+                                        <div class="review-rate">
+                                            <ul class="review-star">
+                                                {% for i in "x"|rjust:"5" %}
+                                                <li class="{% if forloop.counter <= review.rating %}active{% endif %}">
+                                                    {% if forloop.counter <= review.rating %}
+                                                    <i class="fa fa-star"></i>
+                                                    {% else %}
+                                                    <i class="fa fa-star-o"></i>
+                                                    {% endif %}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            ({{ review.rating }}/5)
+                                        </div>
+                                        <div class="review-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                                        <div class="review-date">{{ review.created_at|date:"d/m/Y g:ia" }}</div>
+                                    </div>
+                                    <div class="review-title">
+                                        {{ review.title }}
+                                    </div>                        
+                                    <div class="review-message">
+                                        {{ review.comment }}
+                                    </div>
                                 </div>
+                                <!-- END review -->
+                                {% endfor %}
+                                {% else %}
+                                <p>No reviews yet. Be the first to review this product.</p>
+                                {% endif %}
                             </div>
-                            <div class="review-info">
-                                <strong>{{ review.user.get_full_name }}</strong> <small>- {{ review.created_at|date:"M d, Y" }}</small>
+                            <!-- END left column -->
+                            
+                            <!-- BEGIN right column - write review form -->
+                            <div class="col-md-4">
+                                {% if user.is_authenticated %}
+                                <div class="review-form">
+                                    <h4 class="m-b-20">Write a Review</h4>
+                                    <form method="POST" action="{% url 'product:product_detail' product.slug %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="rating">Rating <span class="text-danger">*</span> <span id="rating-display" class="text-muted">(5.0)</span></label>
+                                            <div class="review-rate-visual m-b-10 f-s-24" id="rating-stars" style="color: #ffc107;">
+                                                <i class="fa fa-star"></i>
+                                                <i class="fa fa-star"></i>
+                                                <i class="fa fa-star"></i>
+                                                <i class="fa fa-star"></i>
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <input type="range" class="form-control-range" id="rating-slider" name="rating" min="1.0" max="5.0" step="0.1" value="5.0" required style="width: 100%;">
+                                            <div class="clearfix m-t-5">
+                                                <span class="pull-left f-s-11 text-muted">1.0</span>
+                                                <span class="pull-right f-s-11 text-muted">5.0</span>
+                                            </div>
+                                        </div>
+                                        <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            var slider = document.getElementById('rating-slider');
+                                            var display = document.getElementById('rating-display');
+                                            var stars = document.getElementById('rating-stars');
+                                            
+                                            function updateStars(value) {
+                                                var fullStars = Math.floor(value);
+                                                var decimal = value - fullStars;
+                                                var starsHTML = '';
+                                                
+                                                for (var i = 1; i <= 5; i++) {
+                                                    if (i <= fullStars) {
+                                                        starsHTML += '<i class="fa fa-star"></i>';
+                                                    } else if (i === fullStars + 1 && decimal >= 0.25 && decimal < 0.75) {
+                                                        starsHTML += '<i class="fa fa-star-half-o"></i>';
+                                                    } else if (i === fullStars + 1 && decimal >= 0.75) {
+                                                        starsHTML += '<i class="fa fa-star"></i>';
+                                                    } else {
+                                                        starsHTML += '<i class="fa fa-star-o"></i>';
+                                                    }
+                                                }
+                                                stars.innerHTML = starsHTML;
+                                                display.textContent = '(' + parseFloat(value).toFixed(1) + ')';
+                                            }
+                                            
+                                            slider.addEventListener('input', function() {
+                                                updateStars(parseFloat(this.value));
+                                            });
+                                        });
+                                        </script>
+                                        <div class="form-group">
+                                            <label for="review-title">Review Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="review-title" name="title" placeholder="Give your review a title" maxlength="200" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="review-comment">Your Review <span class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="review-comment" name="comment" rows="5" placeholder="Write your review here..." required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block">Submit Review</button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-info">
+                                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="alert-link">Please login</a> to write a review.
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class="review-content">
-                                <p>{{ review.comment }}</p>
-                            </div>
+                            <!-- END right column -->
                         </div>
-                        {% endfor %}
-                        {% else %}
-                        <p>No reviews yet. Be the first to review this product.</p>
-                        {% endif %}
                     </div>
                 </div>
             </div>
