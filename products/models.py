@@ -50,7 +50,7 @@ class Product(models.Model):
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
     is_available = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)  ##"Trending Items"
     is_promotion = models.BooleanField(default=False)  # For promotional banners
     promotion_theme = models.CharField(max_length=50, blank=True, null=True)  # 'bg-black-darker', 'bg-blue', 'bg-silver'
     promotion_size = models.CharField(max_length=20, default='regular', choices=[('large', 'Large'), ('regular', 'Regular')])
