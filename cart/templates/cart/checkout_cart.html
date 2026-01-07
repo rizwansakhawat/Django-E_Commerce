@@ -82,38 +82,60 @@
                                     <th class="text-center">Price</th>
                                     <th class="text-center">Quantity</th>
                                     <th class="text-center">Total</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for item in cart_items %}
                                 <tr>
                                     <td class="cart-product">
                                         <div class="product-img">
-                                            <img src="{% static 'img/iphone-6s-plus.png' %}" alt="" />
+                                            {% if item.product.main_image %}
+                                            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}" />
+                                            {% else %}
+                                            <img src="{% static 'img/placeholder.jpg' %}" alt="{{ item.product.name }}" />
+                                            {% endif %}
                                         </div>
                                         <div class="product-info">
-                                            <div class="title">iPhone 6s Plus 16GB (Silver)</div>
-                                            <div class="desc">Delivers Tue 26/04/2016 - Free</div>
+                                            <div class="title">{{ item.product.name }}</div>
+                                            <div class="desc">{% if item.product.sku %}SKU: {{ item.product.sku }}{% endif %}</div>
                                         </div>
                                     </td>
-                                    <td class="cart-price text-center">$999.00</td>
+                                    <td class="cart-price text-center">${{ item.get_unit_price }}</td>
                                     <td class="cart-qty text-center">
                                         <div class="cart-qty-input">
-                                            <a href="#" class="qty-control left disabled" data-click="decrease-qty" data-target="#qty"><i class="fa fa-minus"></i></a>
-                                            <input type="text" name="qty" value="1" class="form-control" id="qty" />
-                                            <a href="#" class="qty-control right disabled" data-click="increase-qty" data-target="#qty"><i class="fa fa-plus"></i></a>
+                                            <a href="#" class="qty-control left" data-click="decrease-qty" data-target="#qty-{{ item.id }}"><i class="fa fa-minus"></i></a>
+                                            <input type="text" name="qty_{{ item.id }}" value="{{ item.quantity }}" class="form-control" id="qty-{{ item.id }}" />
+                                            <a href="#" class="qty-control right" data-click="increase-qty" data-target="#qty-{{ item.id }}"><i class="fa fa-plus"></i></a>
                                         </div>
-                                        <div class="qty-desc">1 to max order</div>
+                                        <div class="qty-desc">Max: {{ item.product.stock }}</div>
                                     </td>
                                     <td class="cart-total text-center">
-                                        $999.00
+                                        ${{ item.get_subtotal }}
+                                    </td>
+                                    <td class="text-center">
+                                        <form method="POST" action="{% url 'cart:remove' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Remove item">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center p-20">
+                                        <p>Your cart is empty. <a href="{% url 'products:product_list' %}">Continue shopping</a></p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                                 <tr>
                                     <td class="cart-summary" colspan="4">
                                         <div class="summary-container">
                                             <div class="summary-row">
                                                 <div class="field">Cart Subtotal</div>
-                                                <div class="value">$999.00</div>
+                                                <div class="value">${{ cart.get_total_price }}</div>
                                             </div>
                                             <div class="summary-row text-danger">
                                                 <div class="field">Free Shipping</div>
@@ -121,7 +143,7 @@
                                             </div>
                                             <div class="summary-row total">
                                                 <div class="field">Total</div>
-                                                <div class="value">$999.00</div>
+                                                <div class="value">${{ cart.get_total_price }}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -133,7 +155,7 @@
                 <!-- END checkout-body -->
                 <!-- BEGIN checkout-footer -->
                 <div class="checkout-footer">
-                    <a href="#" class="btn btn-white btn-lg pull-left">Continue Shopping</a>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-white btn-lg pull-left">Continue Shopping</a>
                     <button type="submit" class="btn btn-inverse btn-lg p-l-30 p-r-30 m-l-10">Checkout</button>
                 </div>
                 <!-- END checkout-footer -->

@@ -65,7 +65,7 @@
                         {% for product in products %}
                         <!-- BEGIN item -->
                         <div class="item item-thumbnail">
-                            <a href="{% url 'product:product_detail' product.slug %}" class="item-image">
+                            <a href="{% url 'products:product_detail' product.slug %}" class="item-image">
                                 <img src="{{ product.main_image.url }}" alt="{{ product.name }}" />
                                 {% if product.get_discount_percentage > 0 %}
                                 <div class="discount">{{ product.get_discount_percentage }}% OFF</div>
@@ -73,7 +73,7 @@
                             </a>
                             <div class="item-info">
                                 <h4 class="item-title">
-                                    <a href="{% url 'product:product_detail' product.slug %}">{{ product.name }}<br />{{ product.short_description }}</a>
+                                    <a href="{% url 'products:product_detail' product.slug %}">{{ product.name }}<br />{{ product.short_description }}</a>
                                 </h4>
                                 <p class="item-desc">{{ product.short_description }}</p>
                                 {% if product.discount_price %}

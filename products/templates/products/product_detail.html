@@ -6,9 +6,9 @@
 <div id="product" class="section-container p-t-20">
     <div class="container">
         <ul class="breadcrumb m-b-10 f-s-12">
-            <li><a href="{% url 'product:home' %}">Home</a></li>
+            <li><a href="{% url 'products:home' %}">Home</a></li>
             {% if product.category %}
-            <li><a href="{% url 'product:products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
+            <li><a href="{% url 'products:products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
             {% endif %}
             <li class="active">{{ product.name }}</li>
         </ul>
@@ -44,7 +44,7 @@
                         {% if product.category or product.brand %}
                         <ul class="product-category">
                             {% if product.category %}
-                            <li><a href="{% url 'product:products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
+                            <li><a href="{% url 'products:products_by_category' product.category.slug %}">{{ product.category.name }}</a></li>
                             {% endif %}
                             {% if product.category and product.brand %}
                             <li>/</li>
@@ -95,7 +95,17 @@
                         </div>
                         {% endif %}
                         {% if product.is_available and product.stock > 0 %}
-                        <button class="btn btn-inverse btn-lg" type="button">ADD TO CART (Coming Soon)</button>
+                        <form method="post" action="{% url 'cart:add' %}" class="m-t-10">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <div class="input-group" style="max-width:220px;">
+                                <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-inverse btn-lg" type="submit">ADD TO CART</button>
+                                </span>
+                            </div>
+                        </form>
                         {% else %}
                         <button class="btn btn-inverse btn-lg" type="button" disabled>OUT OF STOCK</button>
                         {% endif %}
@@ -202,7 +212,7 @@
                                 {% if user.is_authenticated %}
                                 <div class="review-form">
                                     <h4 class="m-b-20">Write a Review</h4>
-                                    <form method="POST" action="{% url 'product:product_detail' product.slug %}">
+                                    <form method="POST" action="{% url 'products:product_detail' product.slug %}">
                                         {% csrf_token %}
                                         <div class="form-group">
                                             <label for="rating">Rating <span class="text-danger">*</span> <span id="rating-display" class="text-muted">(5.0)</span></label>
