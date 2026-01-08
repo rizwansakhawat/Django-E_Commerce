@@ -1,18 +1,22 @@
-from django.shortcuts import redirect, render
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 from products.models import Product
 from .models import Cart, CartItem
 
 
 def _get_or_create_cart(request):
+    """Return a cart for the current user or session (guest)."""
     user = request.user if request.user.is_authenticated else None
 
     if user:
         cart, _ = Cart.objects.get_or_create(user=user)
-        # If session cart exists, merge it
+        # Merge any guest cart tied to the same session
         session_key = request.session.session_key
         if session_key:
             try:
@@ -35,50 +39,111 @@ def _get_or_create_cart(request):
     return cart
 
 
-@require_POST
-def add_to_cart(request):
-    product_id = request.POST.get('product_id')
-    quantity = request.POST.get('quantity', 1)
-    try:
-        quantity = int(quantity)
-        if quantity < 1:
-            quantity = 1
-    except (TypeError, ValueError):
-        quantity = 1
+@method_decorator(require_POST, name='dispatch')
+class AddToCartView(View):
+    def post(self, request):
+        # Prefer explicit product_id from POST; fallback to URL kwarg if ever used
+        product_id = request.POST.get('product_id') or request.GET.get('product_id')
+        cart = _get_or_create_cart(request)
+        product = get_object_or_404(Product, id=product_id)
 
-    product = get_object_or_404(Product, id=product_id)
-    cart = _get_or_create_cart(request)
+        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        if created:
+            # Use provided quantity if present
+            quantity = request.POST.get('quantity') or 1
+            try:
+                quantity = int(quantity)
+                if quantity < 1:
+                    quantity = 1
+            except (TypeError, ValueError):
+                quantity = 1
+            item.quantity = quantity
+        else:
+            item.quantity += 1
+        item.save()
 
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    if created:
-        cart_item.quantity = quantity
-    else:
-        cart_item.quantity += quantity
-    cart_item.save()
-
-    messages.success(request, f'Added {product.name} to cart.')
-    # Redirect back to product detail if referrer present, else home
-    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
-    return redirect(next_url or '/')
-
-
-def cart_detail(request):
-    cart = _get_or_create_cart(request)
-    context = {
-        'cart': cart,
-        'cart_items': cart.items.select_related('product').all(),
-    }
-    return render(request, 'cart/checkout_cart.html', context)
+        messages.success(request, f"Added {product.name} to cart.")
+        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+        return redirect(next_url or 'cart:detail')
 
 
-@require_POST
-def remove_from_cart(request):
-    cart_item_id = request.POST.get('cart_item_id')
-    cart_item = get_object_or_404(CartItem, id=cart_item_id)
-    product_name = cart_item.product.name
-    cart_item.delete()
-    
-    messages.success(request, f'Removed {product_name} from cart.')
-    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
-    return redirect(next_url or '/')
+class CartDetailView(View):
+    def get(self, request):
+        cart = _get_or_create_cart(request)
+        cart_items = cart.items.select_related('product').all()
+        context = {
+            'cart': cart,
+            'cart_items': cart_items,
+        }
+        return render(request, 'cart/checkout_cart.html', context)
 
+
+@method_decorator(require_POST, name='dispatch')
+class RemoveFromCartView(View):
+    def post(self, request):
+        cart = _get_or_create_cart(request)
+        cart_item_id = request.POST.get('cart_item_id')
+        if not cart_item_id:
+            messages.error(request, "Missing cart item id.")
+            return redirect('cart:detail')
+
+        cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+        product_name = cart_item.product.name
+        cart_item.delete()
+        messages.success(request, f"Removed {product_name} from cart.")
+        return redirect('cart:detail')
+
+
+@method_decorator(require_POST, name='dispatch')
+class UpdatecartItemQuantityView(View):
+    def post(self, request, item_id, action):
+        item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+
+        if action == "increase":
+            item.quantity += 1
+            item.save()
+        elif action == "decrease":
+            if item.quantity > 1:
+                item.quantity -= 1
+                item.save()
+            else:
+                item.delete()
+
+        return redirect('cart:detail')
+
+
+@method_decorator(require_POST, name='dispatch')
+class UpdateCartQuantityView(View):
+    def post(self, request):
+        """Update cart item quantity via AJAX. Expects JSON: {item_id: 123, quantity: 5}"""
+        import json
+        cart = _get_or_create_cart(request)
+        
+        try:
+            data = json.loads(request.body)
+            item_id = data.get('item_id')
+            quantity = data.get('quantity', 1)
+            
+            # Validate quantity
+            quantity = int(quantity)
+            if quantity < 1:
+                quantity = 1
+            
+            cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
+            
+            # Check stock limit
+            if quantity > cart_item.product.stock:
+                quantity = cart_item.product.stock
+            
+            cart_item.quantity = quantity
+            cart_item.save()
+            
+            return JsonResponse({
+                'success': True,
+                'item_id': item_id,
+                'quantity': cart_item.quantity,
+                'subtotal': float(cart_item.get_subtotal()),
+                'cart_total': float(cart.get_total_price())
+            })
+        except (json.JSONDecodeError, ValueError, CartItem.DoesNotExist):
+            return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
