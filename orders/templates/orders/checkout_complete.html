@@ -15,7 +15,8 @@
     <div class="container">
         <!-- BEGIN checkout -->
         <div class="checkout">
-            <form action="checkout_info.html" method="POST" name="form_checkout">
+            <form action="{% url 'cart:detail' %}" method="POST" name="form_checkout">
+                {% csrf_token %}
                 <!-- BEGIN checkout-header -->
                 <div class="checkout-header">
                     <!-- BEGIN row -->
@@ -23,7 +24,7 @@
                         <!-- BEGIN col-3 -->
                         <div class="col-md-3 col-sm-3">
                             <div class="step">
-                                <a href="checkout_cart.html">
+                                <a href="{% url 'cart:detail' %}">
                                     <div class="number">1</div>
                                     <div class="info">
                                         <div class="title">Delivery Options</div>
@@ -36,7 +37,7 @@
                         <!-- BEGIN col-3 -->
                         <div class="col-md-3 col-sm-3">
                             <div class="step">
-                                <a href="checkout_info.html">
+                                <a href="{% url 'orders:checkout_info' %}">
                                     <div class="number">2</div>
                                     <div class="info">
                                         <div class="title">Shipping Address</div>
@@ -49,7 +50,7 @@
                         <!-- BEGIN col-3 -->
                         <div class="col-md-3 col-sm-3">
                             <div class="step">
-                                <a href="checkout_payment.html">
+                                <a href="{% url 'orders:checkout_payment' %}">
                                     <div class="number">3</div>
                                     <div class="info">
                                         <div class="title">Payment</div>
@@ -80,42 +81,89 @@
                 <div class="checkout-body">
                     <!-- BEGIN checkout-message -->
                     <div class="checkout-message">
-                        <h1>Thank you! <small>Your Payment has been successfully processed with the following details.</small></h1>
+                        <h1>Thank you for your order! <small>Your Payment has been successfully processed with the following details.</small></h1>
                         <div class="table-responsive2">
                             <table class="table table-payment-summary">
                                 <tbody>
                                     <tr>
                                         <td class="field">Transaction Status</td>
-                                        <td class="value">Success</td>
+                                        <td class="value"><span class="label label-success">Success</span></td>
                                     </tr>
                                     <tr>
                                         <td class="field">Transaction Reference No.</td>
-                                        <td class="value">REF000001</td>
+                                        <td class="value">{% if order_number %}{{ order_number }}{% else %}ORD-{% now "YmdHis" %}{% endif %}</td>
                                     </tr>
                                     <tr>
-                                        <td class="field">Bank Authorised Code</td>
-                                        <td class="value">AUTH000001</td>
+                                        <td class="field">Payment Method</td>
+                                        <td class="value">{{ payment_info.payment_type }}</td>
                                     </tr>
                                     <tr>
                                         <td class="field">Transaction Date and Time</td>
-                                        <td class="value">05 APR 2016 07:30PM</td>
+                                        <td class="value">{% now "d M Y h:i A" %}</td>
                                     </tr>
                                     <tr>
-                                        <td class="field">Orders</td>
-                                        <td class="value product-summary">
-                                            <div class="product-summary-img">
-                                                <img src="{% static 'img/iphone-6s-plus.png' %}" alt="" />
-                                            </div>
-                                            <div class="product-summary-info">
-                                                <div class="title">iPhone 6s Plus 16GB (Silver)</div>
-                                                <div class="desc">Delivers Tue 26/04/2016 - Free</div>
-                                            </div>
-                                        </td>
+                                        <td class="field" colspan="2"><strong>Shipping Information</strong></td>
                                     </tr>
                                     <tr>
-                                        <td class="field">Payment Amount (RM)</td>
-                                        <td class="value">$999.00</td>
+                                        <td class="field">Name</td>
+                                        <td class="value">{{ shipping_info.first_name }} {{ shipping_info.last_name }}</td>
                                     </tr>
+                                    <tr>
+                                        <td class="field">Address</td>
+                                        <td class="value">{{ shipping_info.address_1 }} {% if shipping_info.address_2 %}<br />{{ shipping_info.address_2 }}{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field">City</td>
+                                        <td class="value">{{ shipping_info.city }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field">State / Province</td>
+                                        <td class="value">{{ shipping_info.state }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field">Country</td>
+                                        <td class="value">{{ shipping_info.country }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field">ZIP / Phone</td>
+                                        <td class="value">{{ shipping_info.zip_code }} / ({{ shipping_info.area_code }}) {{ shipping_info.primary_phone }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="field" colspan="2"><strong>Order Items</strong></td>
+                                    </tr>
+                                    {% if completed_items %}
+                                        {% for item in completed_items %}
+                                        <tr>
+                                            <td class="field">{{ item.name }}</td>
+                                            <td class="value product-summary">
+                                                <div class="product-summary-info">
+                                                    <div class="title">Qty: {{ item.quantity }} x ${{ item.unit_price }}</div>
+                                                    <div class="desc">Subtotal: ${{ item.subtotal }}</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td class="field"><strong>Payment Amount</strong></td>
+                                            <td class="value"><strong>${{ completed_total }}</strong></td>
+                                        </tr>
+                                    {% else %}
+                                        {% for item in cart_items %}
+                                        <tr>
+                                            <td class="field">{{ item.product.name }}</td>
+                                            <td class="value product-summary">
+                                                <div class="product-summary-info">
+                                                    <div class="title">Qty: {{ item.quantity }} x ${{ item.get_unit_price }}</div>
+                                                    <div class="desc">Subtotal: ${{ item.get_subtotal }}</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td class="field"><strong>Payment Amount</strong></td>
+                                            <td class="value"><strong>${{ cart.get_total_price }}</strong></td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                             </table>
                         </div>
