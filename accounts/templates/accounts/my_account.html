@@ -25,8 +25,7 @@
     <div class="container">
         <!-- BEGIN breadcrumb -->
         <ul class="breadcrumb m-b-10 f-s-12">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Store</a></li>
+            <li><a href="{% url 'products:home' %}">Home</a></li>
             <li class="active">My Account</li>
         </ul>
         <!-- END breadcrumb -->
@@ -35,16 +34,29 @@
             <!-- BEGIN account-sidebar -->
             <div class="account-sidebar">
                 <div class="account-sidebar-cover">
-                    <img src="{% static 'img/my-account-cover.jpg' %}" alt="" />
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" />
+                    {% else %}
+                        <img src="{% static 'img/my-account-cover.jpg' %}" alt="" />
+                    {% endif %}
                 </div>
                 <div class="account-sidebar-content">
-                    <h4>Your Account</h4>
-                    <p>
-                        Modify an order, track a shipment, and update your account info.
-                    </p>
-                    <p>
-                        All you need in one place. All with a few simple clicks.
-                    </p>
+                    <h4>Welcome, {{ user.get_full_name|default:user.username }}!</h4>
+                    {% if profile.bio %}
+                        <p>{{ profile.bio|truncatewords:30 }}</p>
+                    {% else %}
+                        <p>
+                            Modify an order, track a shipment, and update your account info.
+                        </p>
+                        <p>
+                            All you need in one place. All with a few simple clicks.
+                        </p>
+                    {% endif %}
+                    <div class="m-t-10">
+                        <a href="{% url 'accounts:profile_settings' %}" class="btn btn-white btn-sm">
+                            <i class="fa fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
                 </div>
             </div>
             <!-- END account-sidebar -->
@@ -56,35 +68,62 @@
                     <div class="col-md-6">
                         <h4><i class="fa fa-gitlab fa-fw text-muted"></i> Orders</h4>
                         <ul class="nav nav-list">
-                            <li><a href="#">Check the status of an order</a></li>
-                            <li><a href="#">Track a shipment</a></li>
-                            <li><a href="#">Pre-sign for a delivery</a></li>
-                            <li><a href="#">Cancel items</a></li>
-                            <li><a href="#">Print an invoice</a></li>
-                            <li><a href="#">Return items</a></li>
-                            <li><a href="#">Change shipping or billing info for an order</a></li>
-                            <li><a href="#">Edit gift messaging or engraving</a></li>
-                            <li><a href="#">View order history</a></li>
+                            <li><a href="{% url 'accounts:user_orders' %}">View Order History</a></li>
+                            <li><a href="{% url 'accounts:user_orders' %}">Check the status of an order</a></li>
+                            <li><a href="{% url 'accounts:user_orders' %}">Track a shipment</a></li>
                         </ul>
+                        
+                        <h4><i class="fa fa-map-marker fa-fw text-muted"></i> Addresses</h4>
+                        <ul class="nav nav-list">
+                            <li><a href="{% url 'accounts:address_list' %}">Manage saved addresses</a></li>
+                            <li><a href="{% url 'accounts:address_add' %}">Add new address</a></li>
+                        </ul>
+                        
                         <h4><i class="fa fa-universal-access fa-fw text-muted"></i> Account Settings</h4>
                         <ul class="nav nav-list">
-                            <li><a href="#">Update your email address and password</a></li>
-                            <li><a href="#">Change your default shipping or billing info</a></li>
-                            <li><a href="#">Manage email subscriptions</a></li>
+                            <li><a href="{% url 'accounts:profile_settings' %}">Update your profile information</a></li>
+                            <li><a href="{% url 'accounts:profile_settings' %}">Update your email address</a></li>
+                            <li><a href="{% url 'admin:password_change' %}">Change your password</a></li>
+                            <li><a href="{% url 'accounts:profile_settings' %}">Manage email subscriptions</a></li>
                         </ul>
                     </div>
                     <!-- END col-6 -->
                     <!-- BEGIN col-6 -->
                     <div class="col-md-6">
-                        <h4><i class="fa fa-cc-visa fa-fw text-muted"></i> Payments & Financing</h4>
-                        <ul class="nav nav-list">
-                            <li><a href="#">Check the balance of a gift card</a></li>
-                            <li><a href="#">Check the status of a rebate</a></li>
-                        </ul>
-                        <h4><i class="fa fa-wpforms fa-fw text-muted"></i> Specialists</h4>
-                        <ul class="nav nav-list">
-                            <li><a href="#">View your previous activity</a></li>
-                        </ul>
+                        <h4><i class="fa fa-history fa-fw text-muted"></i> Recent Activity</h4>
+                        {% if recent_activity %}
+                            <ul class="nav nav-list">
+                                {% for activity in recent_activity %}
+                                    <li>
+                                        <a href="{% url 'accounts:user_activity' %}">
+                                            {{ activity.get_activity_type_display }} - {{ activity.created_at|date:"M d, Y" }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url 'accounts:user_activity' %}" class="btn btn-white btn-sm m-t-10">View All Activity</a>
+                        {% else %}
+                            <p class="text-muted">No recent activity</p>
+                        {% endif %}
+                        
+                        <h4 class="m-t-20"><i class="fa fa-shopping-bag fa-fw text-muted"></i> Recent Orders</h4>
+                        {% if recent_orders %}
+                            <ul class="nav nav-list">
+                                {% for order in recent_orders %}
+                                    <li>
+                                        <a href="{% url 'accounts:user_order_detail' order.id %}">
+                                            Order #{{ order.order_number }} - 
+                                            <span class="label label-{% if order.order_status == 'delivered' %}success{% elif order.order_status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                                                {{ order.get_order_status_display }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url 'accounts:user_orders' %}" class="btn btn-white btn-sm m-t-10">View All Orders</a>
+                        {% else %}
+                            <p class="text-muted">No orders yet</p>
+                        {% endif %}
                     </div>
                     <!-- END col-6 -->
                 </div>

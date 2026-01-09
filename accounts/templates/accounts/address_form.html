@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Address{% endblock %}
+
+{% block content %}
+<!-- BEGIN #address-form -->
+<div id="address-form" class="section-container p-t-20">
+    <!-- BEGIN container -->
+    <div class="container">
+        <!-- BEGIN breadcrumb -->
+        <ul class="breadcrumb m-b-10 f-s-12">
+            <li><a href="{% url 'accounts:my_account' %}">My Account</a></li>
+            <li><a href="{% url 'accounts:address_list' %}">Addresses</a></li>
+            <li class="active">{% if object %}Edit{% else %}Add{% endif %} Address</li>
+        </ul>
+        <!-- END breadcrumb -->
+        
+        <h2 class="m-b-20"><b>{% if object %}Edit{% else %}Add New{% endif %}</b> Address</h2>
+        
+        <!-- BEGIN row -->
+        <div class="row">
+            <div class="col-md-8">
+                <form method="POST" class="form-horizontal">
+                    {% csrf_token %}
+                    
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Address Details</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group {% if form.address_type.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Address Type <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.address_type }}
+                                    {% if form.address_type.errors %}
+                                        <span class="help-block">{{ form.address_type.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.full_name.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Full Name <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.full_name }}
+                                    {% if form.full_name.errors %}
+                                        <span class="help-block">{{ form.full_name.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Phone <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <span class="help-block">{{ form.phone.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Email <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <span class="help-block">{{ form.email.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.street_address.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Street Address <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.street_address }}
+                                    {% if form.street_address.errors %}
+                                        <span class="help-block">{{ form.street_address.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.apartment_address.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Apartment/Suite</label>
+                                <div class="col-md-9">
+                                    {{ form.apartment_address }}
+                                    {% if form.apartment_address.errors %}
+                                        <span class="help-block">{{ form.apartment_address.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.city.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">City <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.city }}
+                                    {% if form.city.errors %}
+                                        <span class="help-block">{{ form.city.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.state.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">State/Province <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.state }}
+                                    {% if form.state.errors %}
+                                        <span class="help-block">{{ form.state.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.postal_code.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Postal Code <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.postal_code }}
+                                    {% if form.postal_code.errors %}
+                                        <span class="help-block">{{ form.postal_code.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group {% if form.country.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Country <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ form.country }}
+                                    {% if form.country.errors %}
+                                        <span class="help-block">{{ form.country.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="col-md-3 control-label"></label>
+                                <div class="col-md-9">
+                                    <div class="checkbox">
+                                        <label>
+                                            {{ form.is_default }}
+                                            Set as default address
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-md-9 col-md-offset-3">
+                            <button type="submit" class="btn btn-inverse btn-lg">
+                                <i class="fa fa-save"></i> Save Address
+                            </button>
+                            <a href="{% url 'accounts:address_list' %}" class="btn btn-white btn-lg">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- END row -->
+    </div>
+    <!-- END container -->
+</div>
+<!-- END #address-form -->
+
+{% block extra_js %}
+<script>
+// apps.js already has handlePakistanRegionSelects which will auto-initialize
+</script>
+{% endblock %}
+
+{% endblock content %}

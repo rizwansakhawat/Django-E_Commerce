@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile Settings{% endblock %}
+
+{% block content %}
+<!-- BEGIN #profile-settings -->
+<div id="profile-settings" class="section-container p-t-20">
+    <!-- BEGIN container -->
+    <div class="container">
+        <!-- BEGIN breadcrumb -->
+        <ul class="breadcrumb m-b-10 f-s-12">
+            <li><a href="{% url 'accounts:my_account' %}">My Account</a></li>
+            <li class="active">Profile Settings</li>
+        </ul>
+        <!-- END breadcrumb -->
+        
+        <h2 class="m-b-20"><b>Profile</b> Settings</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade in">
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- BEGIN row -->
+        <div class="row">
+            <div class="col-md-8">
+                <form method="POST" enctype="multipart/form-data" class="form-horizontal">
+                    {% csrf_token %}
+                    
+                    <!-- User Information Section -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Account Information</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group {% if user_form.email.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Email <span class="text-danger">*</span></label>
+                                <div class="col-md-9">
+                                    {{ user_form.email }}
+                                    {% if user_form.email.errors %}
+                                        <span class="help-block">{{ user_form.email.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if user_form.first_name.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">First Name</label>
+                                <div class="col-md-9">
+                                    {{ user_form.first_name }}
+                                    {% if user_form.first_name.errors %}
+                                        <span class="help-block">{{ user_form.first_name.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if user_form.last_name.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Last Name</label>
+                                <div class="col-md-9">
+                                    {{ user_form.last_name }}
+                                    {% if user_form.last_name.errors %}
+                                        <span class="help-block">{{ user_form.last_name.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Information Section -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Personal Information</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group {% if profile_form.avatar.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Profile Picture</label>
+                                <div class="col-md-9">
+                                    {{ profile_form.avatar }}
+                                    {% if profile_form.avatar.errors %}
+                                        <span class="help-block">{{ profile_form.avatar.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if profile_form.phone.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Phone</label>
+                                <div class="col-md-9">
+                                    {{ profile_form.phone }}
+                                    {% if profile_form.phone.errors %}
+                                        <span class="help-block">{{ profile_form.phone.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if profile_form.date_of_birth.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Date of Birth</label>
+                                <div class="col-md-9">
+                                    {{ profile_form.date_of_birth }}
+                                    {% if profile_form.date_of_birth.errors %}
+                                        <span class="help-block">{{ profile_form.date_of_birth.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if profile_form.gender.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Gender</label>
+                                <div class="col-md-9">
+                                    {{ profile_form.gender }}
+                                    {% if profile_form.gender.errors %}
+                                        <span class="help-block">{{ profile_form.gender.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group {% if profile_form.bio.errors %}has-error{% endif %}">
+                                <label class="col-md-3 control-label">Bio</label>
+                                <div class="col-md-9">
+                                    {{ profile_form.bio }}
+                                    {% if profile_form.bio.errors %}
+                                        <span class="help-block">{{ profile_form.bio.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">Newsletter</label>
+                                <div class="col-md-9">
+                                    <div class="checkbox">
+                                        <label>
+                                            {{ profile_form.newsletter_subscription }}
+                                            Subscribe to newsletter and promotional emails
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-md-9 col-md-offset-3">
+                            <button type="submit" class="btn btn-inverse btn-lg">Save Changes</button>
+                            <a href="{% url 'accounts:my_account' %}" class="btn btn-white btn-lg">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="panel panel-inverse">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">Quick Actions</h4>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="nav nav-list">
+                            <li><a href="{% url 'accounts:address_list' %}"><i class="fa fa-map-marker"></i> Manage Addresses</a></li>
+                            <li><a href="{% url 'accounts:user_orders' %}"><i class="fa fa-shopping-bag"></i> View Orders</a></li>
+                            <li><a href="{% url 'accounts:user_activity' %}"><i class="fa fa-history"></i> Activity Log</a></li>
+                            <li><a href="{% url 'admin:password_change' %}"><i class="fa fa-key"></i> Change Password</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END row -->
+    </div>
+    <!-- END container -->
+</div>
+<!-- END #profile-settings -->
+{% endblock content %}

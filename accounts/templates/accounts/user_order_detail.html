@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Details - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<!-- BEGIN #order-detail -->
+<div class="section-container">
+    <!-- BEGIN container -->
+    <div class="container">
+        <!-- BEGIN breadcrumb -->
+        <ul class="breadcrumb m-b-10 f-s-12">
+            <li><a href="{% url 'products:home' %}">Home</a></li>
+            <li><a href="{% url 'accounts:my_account' %}">Account</a></li>
+            <li><a href="{% url 'accounts:user_orders' %}">My Orders</a></li>
+            <li class="active">{{ order.order_number }}</li>
+        </ul>
+        <!-- END breadcrumb -->
+        
+        <!-- BEGIN order header -->
+        <div class="row m-b-30">
+            <div class="col-md-8">
+                <h2>Order {{ order.order_number }}</h2>
+                <p class="text-muted">
+                    {% if order.created_at %}
+                        Placed on {{ order.created_at|date:"M d, Y \a\t h:i A" }}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                <a href="{% url 'accounts:user_orders' %}" class="btn btn-default">
+                    <i class="fa fa-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+        <!-- END order header -->
+        
+        <!-- BEGIN order status row -->
+        <div class="row m-b-30">
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Order Status</div>
+                    <div class="panel-body">
+                        {% if order.order_status == 'pending' %}
+                            <span class="label label-warning label-lg">Pending</span>
+                        {% elif order.order_status == 'processing' %}
+                            <span class="label label-info label-lg">Processing</span>
+                        {% elif order.order_status == 'shipped' %}
+                            <span class="label label-primary label-lg">Shipped</span>
+                        {% elif order.order_status == 'delivered' %}
+                            <span class="label label-success label-lg">Delivered</span>
+                        {% elif order.order_status == 'cancelled' %}
+                            <span class="label label-danger label-lg">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Payment Status</div>
+                    <div class="panel-body">
+                        {% if order.payment_status == 'completed' %}
+                            <span class="label label-success label-lg">Paid</span>
+                        {% elif order.payment_status == 'pending' %}
+                            <span class="label label-warning label-lg">Pending</span>
+                        {% elif order.payment_status == 'failed' %}
+                            <span class="label label-danger label-lg">Failed</span>
+                        {% elif order.payment_status == 'refunded' %}
+                            <span class="label label-default label-lg">Refunded</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Total Amount</div>
+                    <div class="panel-body">
+                        <h3 class="m-0">${{ order.total_amount }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END order status row -->
+        
+        <!-- BEGIN order items -->
+        <div class="row m-b-30">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Order Items</div>
+                    <div class="table-responsive">
+                        <table class="table m-0">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-right">Unit Price</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td class="text-right">${{ item.unit_price }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-right"><strong>${{ item.subtotal }}</strong></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No items in this order</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BEGIN order summary -->
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Order Summary</div>
+                    <div class="panel-body">
+                        <div class="row m-b-10">
+                            <div class="col-6">Subtotal:</div>
+                            <div class="col-6 text-right">${{ order.subtotal }}</div>
+                        </div>
+                        <div class="row m-b-10">
+                            <div class="col-6">Tax:</div>
+                            <div class="col-6 text-right">${{ order.tax }}</div>
+                        </div>
+                        <div class="row m-b-10">
+                            <div class="col-6">Shipping:</div>
+                            <div class="col-6 text-right">${{ order.shipping_cost }}</div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-6"><strong>Total:</strong></div>
+                            <div class="col-6 text-right"><strong>${{ order.total_amount }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END order summary -->
+        </div>
+        <!-- END order items -->
+        
+        <!-- BEGIN shipping info -->
+        <div class="row m-b-30">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Shipping Address</div>
+                    <div class="panel-body">
+                        <p>
+                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br />
+                            {{ order.shipping_address }}<br />
+                            {% if order.shipping_city %}{{ order.shipping_city }}, {% endif %}
+                            {% if order.shipping_state %}{{ order.shipping_state }} {% endif %}
+                            {{ order.shipping_postal_code }}<br />
+                            {{ order.shipping_country }}
+                        </p>
+                        <p class="text-muted m-0">
+                            <i class="fa fa-phone"></i> {{ order.phone }}<br />
+                            <i class="fa fa-envelope"></i> {{ order.email }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Billing Address</div>
+                    <div class="panel-body">
+                        <p>
+                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br />
+                            {{ order.billing_address }}<br />
+                            {% if order.billing_city %}{{ order.billing_city }}, {% endif %}
+                            {% if order.billing_state %}{{ order.billing_state }} {% endif %}
+                            {{ order.billing_postal_code }}<br />
+                            {{ order.billing_country }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END shipping info -->
+        
+        <!-- BEGIN payment method -->
+        {% if order.payment_method %}
+        <div class="row m-b-30">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Payment Method</div>
+                    <div class="panel-body">
+                        <p>{{ order.payment_method }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- END payment method -->
+        
+        <!-- BEGIN action buttons -->
+        <div class="row m-b-30">
+            <div class="col-md-12">
+                <a href="{% url 'accounts:user_orders' %}" class="btn btn-default">
+                    <i class="fa fa-arrow-left"></i> Back to Orders
+                </a>
+                <a href="{% url 'products:home' %}" class="btn btn-primary">
+                    <i class="fa fa-shopping-cart"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+        <!-- END action buttons -->
+        
+    </div>
+    <!-- END container -->
+</div>
+<!-- END #order-detail -->
+
+{% include 'policy.html' %}
+{% endblock content %}

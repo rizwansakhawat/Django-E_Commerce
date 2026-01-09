@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Delete Address{% endblock %}
+{% block content %}
+<div class="section-container p-t-20">
+  <div class="container">
+    <h2 class="m-b-20">Delete Address</h2>
+    <div class="alert alert-warning">
+      <p>Are you sure you want to delete this address?</p>
+      <p><strong>{{ object.full_name }}</strong><br>{{ object.street_address }}{% if object.apartment_address %}, {{ object.apartment_address }}{% endif %}, {{ object.city }}, {{ object.state }} {{ object.postal_code }}, {{ object.country }}</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+      <a href="{% url 'accounts:address_list' %}" class="btn btn-default">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock content %}
