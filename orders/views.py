@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
+from django.core.mail import send_mail
 from decimal import Decimal
 from cart.views import _get_or_create_cart
 from .forms import ShippingForm, PaymentForm
@@ -197,6 +198,29 @@ def checkout_payment(request):
                     status='order_placed',
                     description='Order placed and payment confirmed via Stripe.'
                 )
+
+                # Send a simple order confirmation email to the customer
+                try:
+                    subject = f"Order Confirmation - {order.order_number}"
+                    message = (
+                        f"Hi {order.first_name},\n\n"
+                        f"Thanks for your purchase! Your order {order.order_number} was placed successfully.\n"
+                        f"Total: ${total_amount}\n"
+                        f"We'll notify you when your items ship.\n\n"
+                        f"Shipping to: {order.shipping_address}, {order.shipping_city}, {order.shipping_state} {order.shipping_postal_code}\n"
+                        f"Phone: {order.phone}\n\n"
+                        "If you have any questions, just reply to this email."
+                    )
+                    send_mail(
+                        subject=subject,
+                        message=message,
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@example.com',
+                        recipient_list=[order.email],
+                        fail_silently=True,
+                    )
+                except Exception:
+                    # Avoid blocking checkout on mail failures; optionally log in real setups
+                    pass
 
                 # Snapshot cart items for the completion page before clearing
                 items_snapshot = []
