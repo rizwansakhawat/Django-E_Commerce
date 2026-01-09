@@ -23,6 +23,15 @@ def checkout_info(request):
         messages.warning(request, 'Your cart is empty.')
         return redirect('cart:detail')
     
+    # Get user's saved addresses if authenticated
+    saved_addresses = []
+    if request.user.is_authenticated:
+        from accounts.models import Address
+        saved_addresses = Address.objects.filter(
+            user=request.user, 
+            is_active=True
+        ).order_by('-is_default', '-created_at')
+    
     # Pre-fill form with any saved session data and user profile
     session_data = request.session.get('shipping_info', {}) or {}
     initial_data = dict(session_data)
@@ -49,6 +58,7 @@ def checkout_info(request):
         'cart_items': cart_items,
         'shipping_data': shipping_data,
         'form': form,
+        'saved_addresses': saved_addresses,
     }
     return render(request, 'orders/checkout_info.html', context)
 

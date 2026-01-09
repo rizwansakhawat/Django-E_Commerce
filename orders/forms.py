@@ -61,7 +61,7 @@ for state_cities in PAKISTAN_REGIONS.values():
 
 class ShippingForm(forms.Form):
     first_name = forms.CharField(max_length=100)
-    last_name = forms.CharField(max_length=100)
+    last_name = forms.CharField(max_length=100, required=False)
     company_name = forms.CharField(max_length=150, required=False)
     area_code = forms.CharField(max_length=10)
     primary_phone = forms.CharField(max_length=20)

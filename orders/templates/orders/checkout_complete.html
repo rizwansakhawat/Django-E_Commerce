@@ -15,9 +15,8 @@
     <div class="container">
         <!-- BEGIN checkout -->
         <div class="checkout">
-            <form action="{% url 'cart:detail' %}" method="POST" name="form_checkout">
-                {% csrf_token %}
-                <!-- BEGIN checkout-header -->
+            {% csrf_token %}
+            <!-- BEGIN checkout-header -->
                 <div class="checkout-header">
                     <!-- BEGIN row -->
                     <div class="row">
@@ -81,13 +80,20 @@
                 <div class="checkout-body">
                     <!-- BEGIN checkout-message -->
                     <div class="checkout-message">
-                        <h1>Thank you for your order! <small>Your Payment has been successfully processed with the following details.</small></h1>
+                            {% if payment_info.status == 'succeeded' %}
+                            <h1>Thank you for your order! <small>Your payment has been successfully processed with the following details.</small></h1>
                         <div class="table-responsive2">
                             <table class="table table-payment-summary">
-                                <tbody>
+                                    <tbody>
                                     <tr>
                                         <td class="field">Transaction Status</td>
-                                        <td class="value"><span class="label label-success">Success</span></td>
+                                        <td class="value">
+                                            {% if payment_info.status == 'succeeded' %}
+                                                <span class="label label-success">Success</span>
+                                            {% else %}
+                                                <span class="label label-warning">Not Completed</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="field">Transaction Reference No.</td>
@@ -95,12 +101,13 @@
                                     </tr>
                                     <tr>
                                         <td class="field">Payment Method</td>
-                                        <td class="value">{{ payment_info.payment_type }}</td>
+                                        <td class="value">{% if payment_info %}{{ payment_info.payment_type }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
                                     </tr>
                                     <tr>
                                         <td class="field">Transaction Date and Time</td>
                                         <td class="value">{% now "d M Y h:i A" %}</td>
                                     </tr>
+                                    {% if shipping_info %}
                                     <tr>
                                         <td class="field" colspan="2"><strong>Shipping Information</strong></td>
                                     </tr>
@@ -128,59 +135,62 @@
                                         <td class="field">ZIP / Phone</td>
                                         <td class="value">{{ shipping_info.zip_code }} / ({{ shipping_info.area_code }}) {{ shipping_info.primary_phone }}</td>
                                     </tr>
-                                    <tr>
-                                        <td class="field" colspan="2"><strong>Order Items</strong></td>
-                                    </tr>
-                                    {% if completed_items %}
-                                        {% for item in completed_items %}
+                                    {% endif %}
+                                    {% if completed_items or cart_items %}
                                         <tr>
-                                            <td class="field">{{ item.name }}</td>
-                                            <td class="value product-summary">
-                                                <div class="product-summary-info">
-                                                    <div class="title">Qty: {{ item.quantity }} x ${{ item.unit_price }}</div>
-                                                    <div class="desc">Subtotal: ${{ item.subtotal }}</div>
-                                                </div>
-                                            </td>
+                                            <td class="field" colspan="2"><strong>Order Items</strong></td>
                                         </tr>
-                                        {% endfor %}
-                                        <tr>
-                                            <td class="field"><strong>Payment Amount</strong></td>
-                                            <td class="value"><strong>${{ completed_total }}</strong></td>
-                                        </tr>
-                                    {% else %}
-                                        {% for item in cart_items %}
-                                        <tr>
-                                            <td class="field">{{ item.product.name }}</td>
-                                            <td class="value product-summary">
-                                                <div class="product-summary-info">
-                                                    <div class="title">Qty: {{ item.quantity }} x ${{ item.get_unit_price }}</div>
-                                                    <div class="desc">Subtotal: ${{ item.get_subtotal }}</div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                        <tr>
-                                            <td class="field"><strong>Payment Amount</strong></td>
-                                            <td class="value"><strong>${{ cart.get_total_price }}</strong></td>
-                                        </tr>
+                                        {% if completed_items %}
+                                            {% for item in completed_items %}
+                                            <tr>
+                                                <td class="field">{{ item.name }}</td>
+                                                <td class="value product-summary">
+                                                    <div class="product-summary-info">
+                                                        <div class="title">Qty: {{ item.quantity }} x ${{ item.unit_price }}</div>
+                                                        <div class="desc">Subtotal: ${{ item.subtotal }}</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            <tr>
+                                                <td class="field"><strong>Payment Amount</strong></td>
+                                                <td class="value"><strong>${{ completed_total }}</strong></td>
+                                            </tr>
+                                        {% else %}
+                                            {% for item in cart_items %}
+                                            <tr>
+                                                <td class="field">{{ item.product.name }}</td>
+                                                <td class="value product-summary">
+                                                    <div class="product-summary-info">
+                                                        <div class="title">Qty: {{ item.quantity }} x ${{ item.get_unit_price }}</div>
+                                                        <div class="desc">Subtotal: ${{ item.get_subtotal }}</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            <tr>
+                                                <td class="field"><strong>Payment Amount</strong></td>
+                                                <td class="value"><strong>${{ cart.get_total_price }}</strong></td>
+                                            </tr>
+                                        {% endif %}
                                     {% endif %}
                                 </tbody>
                             </table>
                         </div>
                         <p class="text-muted text-center m-b-0">Should you require any assistance, you can get in touch with Support Team at (123) 456-7890</p>
+                            {% endif %}
                     </div>
                     <!-- END checkout-message -->
                 </div>
                 <!-- END checkout-body -->
                 <!-- BEGIN checkout-footer -->
                 <div class="checkout-footer text-center">
-                    <button type="submit" class="btn btn-white btn-lg p-l-30 p-r-30 m-l-10">Manage Orders</button>
+                    <a href="{% url 'accounts:user_orders' %}" class="btn btn-white btn-lg p-l-30 p-r-30 m-l-10">Manage Orders</a>
                 </div>
                 <!-- END checkout-footer -->
-            </form>
+            </div>
+            <!-- END checkout -->
         </div>
-        <!-- END checkout -->
-    </div>
     <!-- END container -->
 </div>
 <!-- END #checkout-cart -->

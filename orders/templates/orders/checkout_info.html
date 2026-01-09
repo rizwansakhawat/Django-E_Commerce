@@ -75,6 +75,39 @@
                 <!-- END checkout-header -->
                 <!-- BEGIN checkout-body -->
                 <div class="checkout-body">
+                    
+                                        {% if saved_addresses %}
+                                        <!-- BEGIN saved addresses section -->
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4">
+                                                <b>Use Saved Address</b>
+                                            </label>
+                                            <div class="col-md-8">
+                                                <select id="saved-address-select" class="form-control">
+                                                    <option value="">-- Select a saved address --</option>
+                                                    {% for address in saved_addresses %}
+                                                    <option value="{{ address.id }}"
+                                                            data-full-name="{{ address.full_name }}"
+                                                            data-email="{{ address.email }}"
+                                                            data-phone="{{ address.phone }}"
+                                                            data-address1="{{ address.street_address }}"
+                                                            data-address2="{{ address.apartment_address }}"
+                                                            data-city="{{ address.city }}"
+                                                            data-state="{{ address.state }}"
+                                                            data-zip="{{ address.postal_code }}"
+                                                            data-country="{{ address.country }}"
+                                                            data-default="{% if address.is_default %}true{% else %}false{% endif %}">
+                                                        {{ address.full_name }} - {{ address.street_address }}, {{ address.city }}
+                                                        {% if address.is_default %}<strong>(Default)</strong>{% endif %}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <p class="help-block m-t-5">Select a saved address to auto-fill the form below</p>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        {% endif %}
+                    
                     <div class="form-group">
                         <label class="control-label col-md-4">
                             First Name <span class="text-danger">*</span>
@@ -86,7 +119,7 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-4">
-                            Last Name <span class="text-danger">*</span>
+                            Last Name
                         </label>
                         <div class="col-md-4">
                             {{ form.last_name }}
@@ -204,5 +237,8 @@
 </div>
 <!-- END #checkout-info -->
 {% include 'policy.html' %}
-
 {% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/saved-address.js' %}?v=3"></script>
+{% endblock %}
