@@ -46,6 +46,7 @@
                         </li>
                         <li><a href="{% url 'core:contact' %}">Customer Care</a></li>
                         <li><a href="#">Order Tracker</a></li>
+                        <li><a href="{% url 'products:brands' %}" style="color: #ff6b6b; font-weight: 600; padding: 8px 15px; border-radius: 4px; background: rgba(255, 107, 107, 0.1); display: inline-block; margin: 0 5px; transition: all 0.3s ease;"><i class="fa fa-tags"></i> All Brands</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="#">Career</a></li>
@@ -104,66 +105,56 @@
                                             <div class="dropdown-menu-sidebar">
                                                 <h4 class="title">Shop By Categories</h4>
                                                 <ul class="dropdown-menu-list">
-                                                    <li><a href="{% url 'products:categories' %}">Mobile Phone <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">Tablet <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">Laptop <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">Desktop <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">TV <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">Speaker <i class="fa fa-angle-right pull-right"></i></a></li>
-                                                    <li><a href="{% url 'products:categories' %}">Gadget <i class="fa fa-angle-right pull-right"></i></a></li>
+                                                    {% if nav_categories %}
+                                                        {% for category in nav_categories|slice:":7" %}
+                                                        <li><a href="{% url 'products:products_by_category' category.slug %}">{{ category.name }} <i class="fa fa-angle-right pull-right"></i></a></li>
+                                                        {% endfor %}
+                                                        <li><a href="{% url 'products:categories' %}" class="text-muted">All categories <i class="fa fa-angle-right pull-right"></i></a></li>
+                                                    {% else %}
+                                                        <li class="text-muted p-10">No categories available</li>
+                                                    {% endif %}
                                                 </ul>
                                             </div>
                                             <!-- END dropdown-menu-sidebar -->
                                             <!-- BEGIN dropdown-menu-content -->
                                             <div class="dropdown-menu-content">
-                                                <h4 class="title">Shop By Popular Phone</h4>
+                                                <h4 class="title">Browse Categories</h4>
+                                                {% if nav_categories %}
                                                 <div class="row">
-                                                    <div class="col-md-3">
-                                                        <ul class="dropdown-menu-list">
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> iPhone 7</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> iPhone 6s</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> iPhone 6</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> iPhone 5s</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> iPhone 5</a></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <ul class="dropdown-menu-list">
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Galaxy S7</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Galaxy A9</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Galaxy J3</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Galaxy Note 5</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Galaxy S7</a></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <ul class="dropdown-menu-list">
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Lumia 730</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Lumia 735</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Lumia 830</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Lumia 820</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Lumia Icon</a></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <ul class="dropdown-menu-list">
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Xperia X</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Xperia Z5</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Xperia M5</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Xperia C5</a></li>
-                                                            <li><a href="{% url 'products:product_list' %}"><i class="fa fa-fw fa-angle-right text-muted"></i> Xperia C4</a></li>
-                                                        </ul>
-                                                    </div>
+                                                    {% for category in nav_categories|slice:":12" %}
+                                                        {% if forloop.first or forloop.counter0|divisibleby:4 %}
+                                                        <div class="col-md-3">
+                                                            <ul class="dropdown-menu-list">
+                                                        {% endif %}
+                                                                <li><a href="{% url 'products:products_by_category' category.slug %}"><i class="fa fa-fw fa-angle-right text-muted"></i> {{ category.name }}</a></li>
+                                                        {% if forloop.counter|divisibleby:4 or forloop.last %}
+                                                            </ul>
+                                                        </div>
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 </div>
+                                                {% else %}
+                                                    <p class="text-muted p-15 m-b-0">Add categories to display navigation.</p>
+                                                {% endif %}
+
                                                 <h4 class="title">Shop By Brand</h4>
                                                 <ul class="dropdown-brand-list m-b-0">
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/apple.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/samsung.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/htc.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/microsoft.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/nokia.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/blackberry.png' %}" alt="" /></a></li>
-                                                    <li><a href="{% url 'products:brands' %}"><img src="{% static 'img/sony.png' %}" alt="" /></a></li>
+                                                    <li><a href="{% url 'products:brands' %}" style="color: #ff6b6b; font-weight: 600; padding: 8px 15px; border-radius: 4px; background: rgba(255, 107, 107, 0.1); display: inline-block; margin: 0 5px; transition: all 0.3s ease;"><i class="fa fa-tags"></i> All Brands</a></li>                                                    {% if nav_brands %}
+                                                        {% for brand in nav_brands %}
+                                                        <li>
+                                                            <a href="{% url 'products:products_by_brand' brand.slug %}">
+                                                                {% if brand.logo %}
+                                                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" />
+                                                                {% else %}
+                                                                <span class="text-uppercase small">{{ brand.name }}</span>
+                                                                {% endif %}
+                                                            </a>
+                                                        </li>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <li class="text-muted p-10">No brands available</li>
+                                                    {% endif %}
+                                                    
                                                 </ul>
                                             </div>
                                             <!-- END dropdown-menu-content -->
@@ -179,13 +170,15 @@
                                         <span class="arrow top"></span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="{% url 'products:product_list' %}">Mobile Phone</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Tablet</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">TV</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Desktop</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Laptop</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Speaker</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Gadget</a></li>
+                                        {% if nav_categories %}
+                                            {% for category in nav_categories|slice:":10" %}
+                                            <li><a href="{% url 'products:products_by_category' category.slug %}">{{ category.name }}</a></li>
+                                            {% endfor %}
+                                            <li class="divider"></li>
+                                            <li><a href="{% url 'products:categories' %}" class="text-muted">All categories</a></li>
+                                        {% else %}
+                                            <li class="text-muted p-10">No categories available</li>
+                                        {% endif %}
                                     </ul>
                                 </li>
                                 <li><a href="{% url 'products:product_list' %}">New Arrival</a></li>
@@ -197,14 +190,13 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li><a href="{% url 'products:home' %}">Home</a></li>
-                                        <li><a href="{% url 'products:search' %}">Search Results</a></li>
                                         <li><a href="{% url 'products:product_list' %}">Product Page</a></li>
-                                        <li><a href="{% url 'products:product_list' %}">Product Details Page</a></li>
                                         <li><a href="{% url 'cart:detail' %}">Checkout Cart</a></li>
-                                        <li><a href="#">Checkout Shipping</a></li>
-                                        <li><a href="#">Checkout Payment</a></li>
-                                        <li><a href="#">Checkout Complete</a></li>
-                                        <li><a href="#">My Account</a></li>
+                                        <li><a href="{% url 'orders:checkout_info' %}">Checkout Shipping</a></li>
+                                        <li><a href="{% url 'orders:checkout_payment' %}">Checkout Payment</a></li>
+                                        <li><a href="{% url 'orders:checkout_complete' %}">Checkout Complete</a></li>
+                                        <li><a href="{% url 'accounts:my_account' %}">My Account</a></li>
+                                        <li><a href="{% url 'accounts:user_orders' %}">My Orders</a></li>
                                         <li><a href="{% url 'core:contact' %}">Contact Us</a></li>
                                         <li><a href="{% url 'core:about' %}">About Us</a></li>
                                         <li><a href="{% url 'core:faq' %}">FAQ</a></li>
@@ -244,10 +236,45 @@
                                     <div class="cart-header">
                                         <h4 class="cart-title">Shopping Bag ({{ cart_item_count|default:0 }}) </h4>
                                     </div>
-                                    <div class="cart-body">
-                                        <p class="text-center text-muted p-10">
-                                            You have {{ cart_item_count|default:0 }} item{{ cart_item_count|default:0|pluralize }} in cart
+                                    <div class="cart-body" style="max-height: 350px; overflow-y: auto;">
+                                        {% if cart_items %}
+                                            {% for item in cart_items %}
+                                            <div class="cart-item" style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; gap: 10px; position: relative;">
+                                                <div class="cart-item-image" style="flex-shrink: 0; width: 60px; height: 60px;">
+                                                    {% if item.product.main_image %}
+                                                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 3px;" />
+                                                    {% else %}
+                                                    <div style="width: 100%; height: 100%; background: #f0f0f0; border-radius: 3px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="cart-item-info" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                                                    <h6 style="margin: 0 0 5px 0; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                        <a href="{% url 'products:product_detail' item.product.slug %}" style="color: #333; text-decoration: none;">{{ item.product.name|truncatewords:3 }}</a>
+                                                    </h6>
+                                                    <p style="margin: 0; font-size: 12px; color: #ff6b6b; font-weight: 600;">
+                                                        Qty: <span>{{ item.quantity }}</span>
+                                                    </p>
+                                                    <p style="margin: 0; font-size: 12px; color: #666;">
+                                                        Rs. {% if item.product.discount_price %}{{ item.product.discount_price }}{% else %}{{ item.product.price }}{% endif %}
+                                                    </p>
+                                                </div>
+                                                <div style="position: absolute; top: 5px; right: 10px;">
+                                                    <form method="POST" action="{% url 'cart:remove' %}" style="display: inline;" onclick="return confirm('Remove this item from cart?');">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="cart_item_id" value="{{ item.id }}" />
+                                                        <button type="submit" style="background: none; border: none; color: #ff6b6b; font-size: 16px; cursor: pointer; padding: 0; transition: all 0.2s ease;" title="Remove item">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                        <p class="text-center text-muted p-10" style="padding: 20px 10px;">
+                                            <i class="fa fa-shopping-bag fa-2x" style="color: #ddd; margin-bottom: 10px; display: block;"></i>
+                                            Your cart is empty
                                         </p>
+                                        {% endif %}
                                     </div>
                                     <div class="cart-footer">
                                         <div class="row row-space-10">
@@ -262,11 +289,39 @@
                                 </div>
                             </li>
                             <li class="divider"></li>
-                            <li>
-                                <a href="#">
+                            <li class="dropdown dropdown-hover">
+                                {% if user.is_authenticated %}
+                                <a href="#" data-toggle="dropdown">
+                                    {% if user.userprofile.avatar %}
+                                    <img src="{{ user.userprofile.avatar.url }}" class="user-img" alt="{{ user.first_name }}" /> 
+                                    {% else %}
+                                    <img src="{% static 'img/user-1.jpg' %}" class="user-img" alt="" /> 
+                                    {% endif %}
+                                    <span class="hidden-md hidden-sm hidden-xs">{{ user.first_name|default:user.username }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href="{% url 'accounts:my_account' %}"><i class="fa fa-user"></i> My Account</a></li>
+                                    <li><a href="{% url 'accounts:user_orders' %}"><i class="fa fa-shopping-bag"></i> My Orders</a></li>
+                                    <li><a href="{% url 'accounts:address_list' %}"><i class="fa fa-map-marker"></i> Addresses</a></li>
+                                    <li><a href="{% url 'accounts:user_activity' %}"><i class="fa fa-history"></i> Activity</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'accounts:profile_settings' %}"><i class="fa fa-cog"></i> Settings</a></li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <form method="post" action="{% url 'accounts:logout' %}" style="display: inline; margin: 0; padding: 0;">
+                                            {% csrf_token %}
+                                            <button type="submit" style="background: none; border: none; color: #333; cursor: pointer; padding: 0; text-align: left; width: 100%; display: block; padding: 10px 15px; text-decoration: none;">
+                                                <i class="fa fa-sign-out"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                                {% else %}
+                                <a href="{% url 'accounts:login' %}">
                                     <img src="{% static 'img/user-1.jpg' %}" class="user-img" alt="" /> 
                                     <span class="hidden-md hidden-sm hidden-xs">Login / Register</span>
                                 </a>
+                                {% endif %}
                             </li>
                         </ul>
                     </div>
@@ -433,6 +488,8 @@
 	<script src="{% static 'plugins/jquery-cookie/jquery.cookie.js' %}"></script>
     <script src="{% static 'js/apps.js' %}?v=3"></script>
 	<!-- ================== END BASE JS ================== -->
+
+    {% block extra_js %}{% endblock %}
 	
 	<script>
 	    $(document).ready(function() {
@@ -441,3 +498,6 @@
 	</script>
 </body>
 </html>
+
+
+                                               

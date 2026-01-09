@@ -37,35 +37,64 @@
                     <div class="col-md-8">
                         <h4 class="m-t-0">Contact Form</h4>
                         <p class="m-b-30 f-s-13">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lobortis tortor justo, elementum volutpat ante porta eu. 
-                            Sed eget tellus neque. Nam feugiat magna turpis. Vestibulum pharetra nibh et pretium efficitur. Donec porta sollicitudin laoreet. 
-                            Sed a condimentum urna. Curabitur placerat ornare venenatis. Cras iaculis venenatis imperdiet.
+                            Have questions or need assistance? Fill out the form below and our team will get back to you as soon as possible. 
+                            We're here to help with any inquiries about our products, orders, or services.
                         </p>
-                        <form class="form-horizontal" name="contact_us_form" action="contact_us.html" method="POST">
-                            <div class="form-group">
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade in">
+                                    <button type="button" class="close" data-dismiss="alert">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <form class="form-horizontal" method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="form-group {% if form.name.errors %}has-error{% endif %}">
                                 <label class="control-label col-md-3">Name <span class="text-danger">*</span></label>
                                 <div class="col-md-7">
-                                    <input type="text" class="form-control"  name="name" />
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <span class="help-block">{{ form.name.errors.0 }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="form-group">
+                            
+                            <div class="form-group {% if form.email.errors %}has-error{% endif %}">
                                 <label class="control-label col-md-3">Email <span class="text-danger">*</span></label>
                                 <div class="col-md-7">
-                                    <input type="text" class="form-control" name="email" />
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <span class="help-block">{{ form.email.errors.0 }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="form-group">
+                            
+                            <div class="form-group {% if form.subject.errors %}has-error{% endif %}">
                                 <label class="control-label col-md-3">Subject <span class="text-danger">*</span></label>
                                 <div class="col-md-7">
-                                    <input type="text" class="form-control" name="subject" />
+                                    {{ form.subject }}
+                                    {% if form.subject.errors %}
+                                        <span class="help-block">{{ form.subject.errors.0 }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="form-group">
+                            
+                            <div class="form-group {% if form.message.errors %}has-error{% endif %}">
                                 <label class="control-label col-md-3">Message <span class="text-danger">*</span></label>
                                 <div class="col-md-7">
-                                    <textarea class="form-control" rows="10" name="message"></textarea>
+                                    {{ form.message }}
+                                    {% if form.message.errors %}
+                                        <span class="help-block">{{ form.message.errors.0 }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
+                            
                             <div class="form-group">
                                 <label class="control-label col-md-3"></label>
                                 <div class="col-md-7">

@@ -4,6 +4,7 @@ from django.views import View
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 
 from products.models import Product
@@ -42,24 +43,32 @@ def _get_or_create_cart(request):
 @method_decorator(require_POST, name='dispatch')
 class AddToCartView(View):
     def post(self, request):
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            messages.warning(request, "Please login to add items to cart.")
+            # Redirect to login with the referring page as next
+            next_url = request.META.get('HTTP_REFERER', 'products:index')
+            return redirect(f"{'/account/login/'}?next={next_url}")
+        
         # Prefer explicit product_id from POST; fallback to URL kwarg if ever used
         product_id = request.POST.get('product_id') or request.GET.get('product_id')
         cart = _get_or_create_cart(request)
         product = get_object_or_404(Product, id=product_id)
 
         item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if created:
-            # Use provided quantity if present
-            quantity = request.POST.get('quantity') or 1
-            try:
-                quantity = int(quantity)
-                if quantity < 1:
-                    quantity = 1
-            except (TypeError, ValueError):
+        # Parse requested quantity (default to 1)
+        raw_qty = request.POST.get('quantity', '1')
+        try:
+            quantity = int(str(raw_qty).strip())
+            if quantity < 1:
                 quantity = 1
+        except (TypeError, ValueError):
+            quantity = 1
+
+        if created:
             item.quantity = quantity
         else:
-            item.quantity += 1
+            item.quantity += quantity
         item.save()
 
         messages.success(request, f"Added {product.name} to cart.")

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories - E-Commerce{% endblock title %}
+
+{% block content %}
+<!-- BEGIN #page-header -->
+<div id="page-header" class="section-container page-header-container bg-black">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <span>Browse All Categories</span>
+            </h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Categories</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!-- END #page-header -->
+
+<!-- BEGIN #content -->
+<div id="content" class="section-container">
+    <!-- BEGIN container -->
+    <div class="container">
+        <h2 class="content-title">Shop by Category</h2>
+        <p class="content-desc">Browse products by category to find exactly what you need.</p>
+        
+        {% if categories %}
+        <div class="row row-space-30">
+            {% for category in categories %}
+            <div class="col-md-3 col-sm-4 col-xs-6 m-b-30">
+                <div class="category-card text-center">
+                    <a href="{% url 'products:products_by_category' category.slug %}" class="category-link">
+                        {% if category.image %}
+                        <div class="category-image">
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-responsive" />
+                        </div>
+                        {% else %}
+                        <div class="category-placeholder bg-silver-lighter p-40">
+                            <i class="fa fa-folder-open fa-5x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="category-info p-15">
+                            <h4 class="category-name m-b-5">{{ category.name }}</h4>
+                            <p class="text-muted m-b-0">
+                                <small>{{ category.product_count }} product{{ category.product_count|pluralize }}</small>
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning m-t-20">
+            <i class="fa fa-exclamation-triangle"></i> No categories available at the moment.
+        </div>
+        {% endif %}
+    </div>
+    <!-- END container -->
+</div>
+<!-- END #content -->
+{% endblock content %}

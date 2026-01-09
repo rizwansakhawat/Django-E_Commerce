@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Brands - E-Commerce{% endblock title %}
+
+{% block content %}
+<!-- BEGIN #page-header -->
+<div id="page-header" class="section-container page-header-container bg-black" style="padding: 80px 0; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-header-title" style="color: #ffffff; font-size: 48px; font-weight: 700; margin-bottom: 20px;">
+                <span>Browse All Brands</span>
+            </h1>
+            <ol class="breadcrumb" style="background: transparent; padding: 0; margin: 0;">
+                <li class="breadcrumb-item"><a href="{% url 'products:home' %}" style="color: #ccc;">Home</a></li>
+                <li class="breadcrumb-item active" style="color: #ff6b6b;">Brands</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!-- END #page-header -->
+
+<!-- BEGIN #content -->
+<div id="content" class="section-container">
+    <!-- BEGIN container -->
+    <div class="container">
+        <h2 class="content-title">Shop by Brand</h2>
+        <p class="content-desc">Explore products from your favorite brands.</p>
+        
+        {% if brands %}
+        <div class="row row-space-30">
+            {% for brand in brands %}
+            <div class="col-md-3 col-sm-4 col-xs-6 m-b-30">
+                <div class="brand-card text-center">
+                    <a href="{% url 'products:products_by_brand' brand.slug %}" class="brand-link">
+                        {% if brand.logo %}
+                        <div class="brand-logo p-30 bg-white">
+                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="img-responsive" style="max-height: 80px; margin: 0 auto;" />
+                        </div>
+                        {% else %}
+                        <div class="brand-placeholder bg-silver-lighter p-40">
+                            <i class="fa fa-tag fa-4x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="brand-info p-15">
+                            <h4 class="brand-name m-b-5">{{ brand.name }}</h4>
+                            <p class="text-muted m-b-0">
+                                <small>{{ brand.product_count }} product{{ brand.product_count|pluralize }}</small>
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning m-t-20">
+            <i class="fa fa-exclamation-triangle"></i> No brands available at the moment.
+        </div>
+        {% endif %}
+    </div>
+    <!-- END container -->
+</div>
+<!-- END #content -->
+{% endblock content %}
