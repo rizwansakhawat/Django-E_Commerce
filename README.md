@@ -140,17 +140,6 @@ python manage.py runserver
 - 👥 **User Management**: Manage customer accounts
 - 🎨 **Customization**: Configure site settings
 
-## 📂 Project Structure
-
-```
-Django-E_Commerce/
-├── 📁 apps/               # Application modules
-├── 📁 static/             # Static files (CSS, JS, images)
-├── 📁 templates/          # HTML templates
-├── 📁 media/              # User uploaded files
-├── ⚙️ manage.py           # Django management script
-└── 📄 requirements.txt    # Python dependencies
-```
 
 ## 🤝 Contributing
 
