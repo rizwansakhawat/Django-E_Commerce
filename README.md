@@ -8,7 +8,6 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![License:  MIT](https://img.shields.io/badge/License-MIT-yellow.svg? style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
